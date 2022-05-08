@@ -8,7 +8,7 @@ export interface IRooms {
   numberBedrooms: number,
   numberBeds: number,
   numberBathrooms: number,
-  rating: number,
+  rating?: number,
   corridorWidth: number,
   desktop: boolean,
   chairForFeeding: boolean,
@@ -19,6 +19,7 @@ export interface IRooms {
   smoke: boolean,
   pets: boolean,
   guests: boolean,
+  imgRooms?: string,
   feedback?: IFeedback[],
 }
 export interface IRoomsEdit {
