@@ -8,10 +8,10 @@ import { RoomsModule } from './rooms/rooms.module';
 
 @Module({
   imports: [
-    // ServeStaticModule.forRoot({
-    //   rootPath: join(__dirname, '..', 'public'),
-    // }),
-  RoomsModule],
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
+    RoomsModule],
   controllers: [AppController],
   providers: [AppService],
 })
