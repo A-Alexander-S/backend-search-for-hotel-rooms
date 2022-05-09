@@ -1,9 +1,25 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseInterceptors, UploadedFile, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
+  HttpException,
+  HttpStatus
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { HelperFileLoader } from 'src/utils/HelperFileLoader';
+import { EditRoomsDto } from './dtos/edit-rooms-dto';
+import { CreateRoomsDto } from './dtos/create-rooms-dto';
 import { FeedbacksService } from './feedbacks/feedbacks.service';
-import { RoomsService, IRooms, IRoomsEdit } from './rooms.service';
+import { RoomsEntity } from './rooms.entity';
+import { RoomsService } from './rooms.service';
 
 const PATH_ROOMS = '/rooms-static/';
 HelperFileLoader.path = PATH_ROOMS;
@@ -17,81 +33,44 @@ export class RoomsController {
   ) { }
 
   @Get('/api/all')
-  getAll(): IRooms[] {
+  async getAll(): Promise<RoomsEntity[]> {
     return this.roomsService.getAll();
   }
 
   @Get('/api/detail/:id')
-  get(@Param('id') id: string): IRooms {
-    let idInt = parseInt(id);
-    const rooms = this.roomsService.find(idInt);
-    const feedback = this.feedbacksService.find(idInt);
-
-    return {
-      ...rooms,
-      feedback
+  async get(
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<RoomsEntity> {
+    // let idInt = parseInt(id);
+    const room = await this.roomsService.findById(id);
+    // const feedback = this.feedbacksService.find(idInt);
+    if (!room) {
+      throw new HttpException(
+        {
+          staus: HttpStatus.NOT_FOUND,
+          error: 'Номер был не найден'
+        },
+        HttpStatus.NOT_FOUND
+      )
     }
+    return room;
   }
 
-  @Get('/all')
-  getAllView() {
-    const rooms = this.roomsService.getAll();
-    let html = '';
-    for (const roomItem of rooms) {
-      html += `
-      <div>
-        <p>Rooms № ${roomItem.id}</p>
-        <div>id: ${roomItem.id}</div>
-        <div>roomNumber: ${roomItem.roomNumber}</div>
-        <div>price: ${roomItem.price}</div>
-      </div>
-      `
-    }
-    return html;
-  }
-
-  // ---
-  // @Get('/detail/:idRooms')
-  // getDetailView() {
-  //   const rooms = this.roomsService.getAll();
-  //   let html = '';
-  //   for (const roomItem of rooms) {
-  //     html += `
-  //     <div>
-  //       <p>Rooms № ${roomItem.id}</p>
-  //       <div>id: ${roomItem.id}</div>
-  //       <div>roomNumber: ${roomItem.roomNumber}</div>
-  //       <div>price: ${roomItem.price}</div>
-  //     </div>
-  //     `
-  //   }
-  //   return html;
-  // }
-
-
-  // @UseInterceptors(
-  //   FileInterceptor('imgRooms', {
-  //     storage: diskStorage({
-  //       destination: (req, file,cb) => cb(null, './public/news-static'),
-  //       filename:(req, file,cb) => cb(null, getRandomInt() + '.jpeg'),
-  //     }),
-  //   }),
-  // )
   @Post('/api')
   @UseInterceptors(
     FileInterceptor('imgRooms', {
       storage: diskStorage({
         destination: HelperFileLoader.destinationPath, // (req, file, cb) => cb(null,'./public/rooms-static/')
-        filename: HelperFileLoader.customFileName, // (req, file, cb) => cb(null, getRandom() + 'jpeg')
+        filename: HelperFileLoader.customFileName, // (req, file, cb) => cb(null, getRandomInt() + 'jpeg')
       }),
     }),
   )
-  create(
-    @Body() room: IRooms,
-    @UploadedFile() imgRooms: Express.Multer.File
-  ): IRooms {
+  async create(
+    @Body() room: CreateRoomsDto,
+    @UploadedFile() imgsRoom: Express.Multer.File
+  ): Promise<RoomsEntity> {
     //Проверка
-    const fileExtansion = imgRooms.originalname.split('.').reverse()[0];
+    const fileExtansion = imgsRoom.originalname.split('.').reverse()[0];
     if (!fileExtansion || !fileExtansion.match(/(jpg|jpeg|png|gif)$/)) {
       throw new HttpException(
         {
@@ -101,20 +80,38 @@ export class RoomsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    room.imgRooms = PATH_ROOMS + imgRooms.filename;
-    return this.roomsService.create(room);
+    room.imgsRoom = PATH_ROOMS + imgsRoom.filename;
+    const createdRooms = await this.roomsService.create(room);
+    return createdRooms;
   }
 
   @Put('/api/:id')
-  edit(@Param('id') id: string, @Body() room: IRoomsEdit): IRooms {
-    let idInt = parseInt(id);
-    return this.roomsService.edit(idInt, room);
+  async edit(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() room: EditRoomsDto
+  ): Promise<RoomsEntity> {
+    const roomEditable = await this.roomsService.edit(id, room)
+    if (!roomEditable) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Неверный формат данных',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return roomEditable;
   }
 
   @Delete('/api/:id')
-  remove(@Param('id') id: string): string {
-    let idInt = parseInt(id);
-    const isRemoved = this.roomsService.remove(idInt);
-    return isRemoved ? 'Новость удалена' : 'Передан неверный индентификатор';
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<string> {
+    const isRemoved = await this.roomsService.remove(id);
+    throw new HttpException(
+      {
+        status: HttpStatus.OK,
+        error: isRemoved ? 'Новость удалена' : 'передан неверный индентификатор',
+      },
+      HttpStatus.OK,
+    );
   }
 }

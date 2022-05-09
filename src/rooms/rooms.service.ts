@@ -1,139 +1,81 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateRoomsDto } from './dtos/create-rooms-dto';
+import { EditRoomsDto } from './dtos/edit-rooms-dto';
 import { IFeedback } from './feedbacks/feedbacks.service';
-
-export interface IRooms {
-  id: number,
-  roomNumber: number,
-  price: number,
-  numberBedrooms: number,
-  numberBeds: number,
-  numberBathrooms: number,
-  rating?: number,
-  corridorWidth: number,
-  desktop: boolean,
-  chairForFeeding: boolean,
-  crib: boolean,
-  airConditioning: boolean,
-  noiseAbsorbingWalls: boolean,
-  windowInEveryBedroom: boolean,
-  smoke: boolean,
-  pets: boolean,
-  guests: boolean,
-  imgRooms?: string,
-  feedback?: IFeedback[],
-}
-export interface IRoomsEdit {
-  id: number,
-  roomNumber?: number,
-  price?: number,
-  numberBedrooms?: number,
-  numberBeds?: number,
-  numberBathrooms?: number,
-  rating?: number,
-  corridorWidth?: number,
-  desktop?: boolean,
-  chairForFeeding?: boolean,
-  crib?: boolean,
-  airConditioning?: boolean,
-  noiseAbsorbingWalls?: boolean,
-  windowInEveryBedroom?: boolean,
-  smoke?: boolean,
-  pets?: boolean,
-  guests?: boolean,
-}
+import { RoomsEntity } from './rooms.entity';
 
 @Injectable()
 export class RoomsService {
-  private readonly rooms: IRooms[] = [
-    {
-      id: 1,
-      roomNumber: 1,
-      price: 1000,
-      numberBedrooms: 1,
-      numberBeds: 1,
-      numberBathrooms: 1,
-      rating: 3,
-      corridorWidth: 90,
-      desktop: true,
-      chairForFeeding: true,
-      crib: true,
-      airConditioning: true,
-      noiseAbsorbingWalls: true,
-      windowInEveryBedroom: true,
-      smoke: true,
-      pets: true,
-      guests: true,
-    },
-    {
-      id: 2,
-      roomNumber: 2,
-      price: 1000,
-      numberBedrooms: 1,
-      numberBeds: 1,
-      numberBathrooms: 1,
-      rating: 3,
-      corridorWidth: 90,
-      desktop: true,
-      chairForFeeding: true,
-      crib: true,
-      airConditioning: true,
-      noiseAbsorbingWalls: true,
-      windowInEveryBedroom: true,
-      smoke: true,
-      pets: true,
-      guests: true,
-    }, {
-      id: 3,
-      roomNumber: 3,
-      price: 1000,
-      numberBedrooms: 1,
-      numberBeds: 1,
-      numberBathrooms: 1,
-      rating: 3,
-      corridorWidth: 90,
-      desktop: true,
-      chairForFeeding: true,
-      crib: true,
-      airConditioning: true,
-      noiseAbsorbingWalls: true,
-      windowInEveryBedroom: true,
-      smoke: true,
-      pets: true,
-      guests: true,
+  constructor(
+    @InjectRepository(RoomsEntity)
+    private roomsRepository: Repository<RoomsEntity>
+  ) { }
+
+  async create(room: CreateRoomsDto): Promise<RoomsEntity> {
+    const roomsEntity = new RoomsEntity();
+    roomsEntity.roomNumber = room.roomNumber;
+    roomsEntity.price = room.price;
+    roomsEntity.countBedrooms = room.countBedrooms;
+    roomsEntity.countBeds = room.countBathrooms;
+    roomsEntity.countBathrooms = room.countBathrooms;
+    roomsEntity.corridorWidth = room.corridorWidth;
+    roomsEntity.desktop = room.desktop;
+    roomsEntity.chairForFeeding = room.chairForFeeding;
+    roomsEntity.crib = room.crib;
+    roomsEntity.airConditioning = room.airConditioning;
+    roomsEntity.noiseAbsorbingWalls = room.noiseAbsorbingWalls;
+    roomsEntity.windowInEveryBedroom = room.windowInEveryBedroom;
+    roomsEntity.smoke = room.smoke;
+    roomsEntity.pets = room.pets;
+    roomsEntity.guests = room.guests;
+    roomsEntity.imgsRoom = room.imgsRoom;
+    roomsEntity.rating = room.rating;
+
+    return this.roomsRepository.save(roomsEntity);
+  }
+
+  async findById(id: number): Promise<RoomsEntity> {
+    return this.roomsRepository.findOne(id);
+  }
+
+  async getAll(): Promise<RoomsEntity[]> {
+    return this.roomsRepository.find({});
+  }
+
+  async edit(id: number, room: EditRoomsDto): Promise<RoomsEntity> | null {
+    const editableRooms = await this.findById(id);
+    if (editableRooms) {
+      // const roomEntity = new RoomsEntity;
+
+      editableRooms.roomNumber = room.roomNumber || editableRooms.roomNumber;
+      editableRooms.price = room.price || editableRooms.roomNumber;
+      editableRooms.countBedrooms = room.countBedrooms || editableRooms.roomNumber;
+      editableRooms.countBeds = room.countBathrooms || editableRooms.roomNumber;
+      editableRooms.countBathrooms = room.countBathrooms || editableRooms.roomNumber;
+      editableRooms.corridorWidth = room.corridorWidth || editableRooms.roomNumber;
+      editableRooms.desktop = room.desktop || editableRooms.desktop;
+      editableRooms.chairForFeeding = room.chairForFeeding || editableRooms.chairForFeeding;
+      editableRooms.crib = room.crib || editableRooms.crib;
+      editableRooms.airConditioning = room.airConditioning || editableRooms.airConditioning;
+      editableRooms.noiseAbsorbingWalls = room.noiseAbsorbingWalls || editableRooms.noiseAbsorbingWalls;
+      editableRooms.windowInEveryBedroom = room.windowInEveryBedroom || editableRooms.windowInEveryBedroom;
+      editableRooms.smoke = room.smoke || editableRooms.smoke;
+      editableRooms.pets = room.pets || editableRooms.pets;
+      editableRooms.guests = room.guests || editableRooms.guests;
+      editableRooms.imgsRoom = room.imgsRoom || editableRooms.imgsRoom;
+
+      return this.roomsRepository.save(editableRooms);
     }
-  ];
-
-  create(room: IRooms): IRooms {
-    this.rooms.push(room);
-    return room;
+    return null;
   }
 
-  find(id: number): IRooms | undefined {
-    return this.rooms.find((room) => room.id == id);
-  }
-
-  getAll(): IRooms[] {
-    return this.rooms;
-  }
-
-  edit(id: number, room: IRoomsEdit): IRooms | undefined {
-    const indexEdit = this.rooms.findIndex((room) => room.id === id);
-    if (indexEdit !== -1) {
-      this.rooms[indexEdit] = {
-        ...this.rooms[indexEdit],
-        ...room
-      };
-      return this.rooms[indexEdit];
+  async remove(id: number): Promise<RoomsEntity> | null {
+    const removeRoom = await this.findById(id);
+    if (removeRoom) {
+      return this.roomsRepository.remove(removeRoom);
     }
-    return undefined;
-  }
-
-  remove(id: number): Boolean {
-    const indexRemove = this.rooms.findIndex((room) => room.id === id);
-    if (indexRemove !== -1) {
-      this.rooms.splice(indexRemove, 1);
-      return true;
-    }
-    return false;
+    return null;
   }
 }
