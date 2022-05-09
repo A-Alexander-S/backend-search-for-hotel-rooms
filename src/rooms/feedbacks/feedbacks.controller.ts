@@ -5,12 +5,12 @@ import { FeedbacksService, IFeedback } from './feedbacks.service';
 export class FeedbacksController {
   constructor(private readonly feedbacksService: FeedbacksService) { }
 
-  @Post('/api/:idRooms')
+  @Post('/api/:idRoom')
   create(
-    @Param('idRooms') idRooms: string,
+    @Param('idRooms') idRoom: string,
     @Body() feedback: IFeedback): IFeedback {
 
-    const idRoomsInt = parseInt(idRooms);
+    const idRoomsInt = parseInt(idRoom);
     return this.feedbacksService.create(idRoomsInt, feedback);
   }
 
