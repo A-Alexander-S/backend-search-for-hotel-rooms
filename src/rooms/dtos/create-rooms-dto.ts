@@ -1,4 +1,3 @@
-import { Type } from "class-transformer";
 import {
   IsBoolean,
   IsInt,
@@ -9,6 +8,7 @@ import {
   Validate,
   ValidateIf
 } from "class-validator";
+import { Type } from "class-transformer";
 
 
 export class CreateRoomsDto {
