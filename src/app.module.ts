@@ -6,6 +6,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { RoomsModule } from './rooms/rooms.module';
 import { UsersModule } from './users/users.module';
+import { FeedbacksModule } from './rooms/feedbacks/feedbacks.module';
 
 @Module({
   imports: [
@@ -23,7 +24,9 @@ import { UsersModule } from './users/users.module';
       rootPath: join(__dirname, '..', 'public'),
     }),
     RoomsModule,
-    UsersModule],
+    UsersModule,
+    FeedbacksModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -2,10 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from "typeorm";
 
+import { UsersEntity } from "../users/users.entity";
 @Entity('rooms')
 export class RoomsEntity {
 
@@ -62,6 +66,9 @@ export class RoomsEntity {
 
   @Column('numeric')
   rating: number;
+
+  @ManyToOne(() => UsersEntity, (user_id) => user_id.roomsId)
+  userId: UsersEntity;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

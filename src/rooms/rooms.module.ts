@@ -6,11 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoomsEntity } from './rooms.entity';
 
 @Module({
-  controllers: [RoomsController],
-  providers: [RoomsService],
   imports: [
     TypeOrmModule.forFeature([RoomsEntity]),
     FeedbacksModule
-  ]
+  ],
+  controllers: [RoomsController],
+  providers: [RoomsService],
 })
 export class RoomsModule { }
