@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsBoolean,
   IsInt,
   IsNotEmpty,
@@ -14,32 +15,32 @@ import { Type } from "class-transformer";
 export class CreateRoomsDto {
   @IsNotEmpty()
   @Type(() => Number)
-  @IsInt()
+  @IsNumber()
   roomNumber: number;
 
   @IsNotEmpty()
   @Type(() => Number)
-  @IsInt()
+  @IsNumber()
   price: number;
 
   @IsNotEmpty()
   @Type(() => Number)
-  @IsInt()
+  @IsNumber()
   countBedrooms: number;
 
   @IsNotEmpty()
   @Type(() => Number)
-  @IsInt()
+  @IsNumber()
   countBeds: number;
 
   @IsNotEmpty()
   @Type(() => Number)
-  @IsInt()
+  @IsNumber()
   countBathrooms: number;
 
   @IsNotEmpty()
   @Type(() => Number)
-  @IsInt()
+  @IsNumber()
   corridorWidth: number;
 
   @IsNotEmpty()
@@ -89,14 +90,10 @@ export class CreateRoomsDto {
 
   @IsString()
   @ValidateIf((o) => o.imgRooms || o.imgRooms === '')
-  imgsRoom: string
+  imgsRoom: string;
 
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
-  rating: number
+  rating: number;
 }
-
-// @IsString()
-// @IsNotEmpty()
-// @ValidateIf((o) => o.guests || o.guests === '')
