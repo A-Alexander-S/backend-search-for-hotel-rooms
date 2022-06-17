@@ -10,7 +10,8 @@ import {
   UseInterceptors,
   UploadedFile,
   HttpException,
-  HttpStatus
+  HttpStatus,
+  Header
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -33,6 +34,7 @@ export class RoomsController {
   ) { }
 
   @Get('/api/all')
+  @Header('Access-Control-Allow-Origin', '*')
   async getAll(): Promise<RoomsEntity[]> {
     return this.roomsService.getAll();
   }
